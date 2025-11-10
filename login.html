@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login | AgriLearn Hub</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/png" href="logo.png" />
+</head>
+
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="logo">
+        <span class="logo-icon"><img src="logo.png" alt="AgriLearn Hub Logo" height="75px" width="75px"></span>
+        <span class="logo-text">AgriLearn Hub</span>
+      </a>
+      <ul class="nav-menu">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="learn.html">Learn</a></li>
+        <li><a href="shop.html">Shop</a></li>
+        <li><a href="blog.html">Blog</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="login.html" class="active btn-nav">Login</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="login-container">
+    <h2>Member Login</h2>
+    <form id="loginForm" onsubmit="return handleLogin(event)">
+      <label for="email">Email Address</label>
+      <input type="email" id="email" placeholder="Enter your email" required />
+
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="Enter your password" required />
+
+      <button type="submit">Login</button>
+    </form>
+
+    <div class="extra-links">
+      <p><a href="#" onclick="showForgotPassword()">Forgot Password?</a></p>
+      <p>Don't have an account? <a href="signup.html">Sign up here</a></p>
+    </div>
+
+    <div id="message" style="margin-top: 15px; text-align: center; display: none;"></div>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 AgriLearn Hub | All Rights Reserved</p>
+  </footer>
+
+  <script>
+    function handleLogin(event) {
+      event.preventDefault();
+      
+      const email = document.getElementById("email").value.trim().toLowerCase();
+      const password = document.getElementById("password").value;
+
+      // Validation
+      if (email === "" || password === "") {
+        showMessage("Please fill in all fields!", "error");
+        return false;
+      }
+
+      // Get users from localStorage
+      const users = JSON.parse(localStorage.getItem("agrilearn_users")) || [];
+
+      // Find user with matching email
+      const user = users.find(u => u.email === email);
+
+      if (!user) {
+        showMessage("Email not found! Please sign up first.", "error");
+        return false;
+      }
+
+      // Check password
+      if (user.password !== password) {
+        showMessage("Incorrect password! Please try again.", "error");
+        return false;
+      }
+
+      // Login successful - save current user (without password)
+      const currentUser = {
+        id: user.id,
+        fullName: user.fullName,
+        email: user.email,
+        loginTime: new Date().toISOString()
+      };
+
+      localStorage.setItem("agrilearn_current_user", JSON.stringify(currentUser));
+
+      // Show success message
+      showMessage("Login successful! Redirecting...", "success");
+
+      // Redirect to home page after 1.5 seconds
+      setTimeout(() => {
+        window.location.href = "index.html";
+      }, 1500);
+
+      return false;
+    }
+
+    function showMessage(message, type) {
+      const messageDiv = document.getElementById("message");
+      messageDiv.textContent = message;
+      messageDiv.style.display = "block";
+      messageDiv.style.color = type === "error" ? "#d32f2f" : "#2d6a4f";
+      messageDiv.style.fontWeight = "600";
+    }
+
+    function showForgotPassword() {
+      const email = prompt("Enter your registered email address:");
+      if (email) {
+        const users = JSON.parse(localStorage.getItem("agrilearn_users")) || [];
+        const user = users.find(u => u.email === email.toLowerCase());
+        
+        if (user) {
+          alert(`Your password is: ${user.password}\n\n(In a real application, this would send a reset link to your email)`);
+        } else {
+          alert("Email not found in our records!");
+        }
+      }
+    }
+
+    // Check if user is already logged in
+    window.onload = function() {
+      const currentUser = JSON.parse(localStorage.getItem("agrilearn_current_user"));
+      if (currentUser) {
+        showMessage("You are already logged in! Redirecting...", "success");
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 1500);
+      }
+    };
+  </script>
+</body>
+</html>
