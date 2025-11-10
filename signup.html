@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign Up | AgriLearn Hub</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/png" href="logo.png" />
+</head>
+
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="logo">
+        <span class="logo-icon"><img src="logo.png" alt="AgriLearn Hub Logo" height="75px" width="75px"></span>
+        <span class="logo-text">AgriLearn Hub</span>
+      </a>
+      <ul class="nav-menu">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="learn.html">Learn</a></li>
+        <li><a href="shop.html">Shop</a></li>
+        <li><a href="blog.html">Blog</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="login.html" class="btn-nav">Login</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="login-container">
+    <h2>Create Account</h2>
+    <form id="signupForm" onsubmit="return handleSignup(event)">
+      <label for="fullName">Full Name</label>
+      <input type="text" id="fullName" placeholder="Enter your full name" required />
+
+      <label for="email">Email Address</label>
+      <input type="email" id="email" placeholder="Enter your email" required />
+
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="Create a password (min 6 characters)" required minlength="6" />
+
+      <label for="confirmPassword">Confirm Password</label>
+      <input type="password" id="confirmPassword" placeholder="Confirm your password" required />
+
+      <button type="submit">Sign Up</button>
+    </form>
+
+    <div class="extra-links">
+      <p>Already have an account? <a href="login.html">Login here</a></p>
+    </div>
+
+    <div id="message" style="margin-top: 15px; text-align: center; display: none;"></div>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 AgriLearn Hub | All Rights Reserved</p>
+  </footer>
+
+  <script>
+    function handleSignup(event) {
+      event.preventDefault();
+      
+      const fullName = document.getElementById("fullName").value.trim();
+      const email = document.getElementById("email").value.trim().toLowerCase();
+      const password = document.getElementById("password").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+      const messageDiv = document.getElementById("message");
+
+      // Validation
+      if (password !== confirmPassword) {
+        showMessage("Passwords do not match!", "error");
+        return false;
+      }
+
+      if (password.length < 6) {
+        showMessage("Password must be at least 6 characters long!", "error");
+        return false;
+      }
+
+      // Get existing users from localStorage
+      let users = JSON.parse(localStorage.getItem("agrilearn_users")) || [];
+
+      // Check if email already exists
+      const existingUser = users.find(user => user.email === email);
+      if (existingUser) {
+        showMessage("Email already registered! Please login.", "error");
+        return false;
+      }
+
+      // Create new user object
+      const newUser = {
+        id: Date.now(),
+        fullName: fullName,
+        email: email,
+        password: password, // In production, this should be hashed!
+        createdAt: new Date().toISOString()
+      };
+
+      // Add to users array
+      users.push(newUser);
+
+      // Save to localStorage
+      localStorage.setItem("agrilearn_users", JSON.stringify(users));
+
+      // Show success message
+      showMessage("Account created successfully! Redirecting to login...", "success");
+
+      // Redirect to login page after 2 seconds
+      setTimeout(() => {
+        window.location.href = "login.html";
+      }, 2000);
+
+      return false;
+    }
+
+    function showMessage(message, type) {
+      const messageDiv = document.getElementById("message");
+      messageDiv.textContent = message;
+      messageDiv.style.display = "block";
+      messageDiv.style.color = type === "error" ? "#d32f2f" : "#2d6a4f";
+      messageDiv.style.fontWeight = "600";
+    }
+
+    // Check if user is already logged in
+    window.onload = function() {
+      const currentUser = JSON.parse(localStorage.getItem("agrilearn_current_user"));
+      if (currentUser) {
+        window.location.href = "index.html";
+      }
+    };
+  </script>
+</body>
+</html>
